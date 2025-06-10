@@ -1,0 +1,121 @@
+---
+title: "Forest plot"
+output: html_document
+---
+
+```{r}
+library(forestplot)
+```
+
+```{r}
+#Model2
+# Cochrane data from the 'rmeta'-package
+
+cochrane_from_rmeta2 <- 
+  structure(list(
+     mean  = c(NA, NA,  1.65,1.26, 1.16), 
+    lower = c(NA, NA,  1.18,1.15, 0.98),
+    upper = c(NA, NA,  2.30,1.37, 1.37)),
+    .Names = c("mean", "lower", "upper"), 
+    row.names = c(NA, -11L), 
+    class = "data.frame")
+
+
+tabletext2 <- cbind(
+  c("", "Adjusted Models", "the US","Japan", "South Korea"),
+  c("CVD incidence", "Lonely", "204","337","239"),
+  c("CVD incidence", "Not lonely", "129", "216","115"),
+  c("", "HR", "1.26", "1.65", "1.16" ))
+```
+
+```{r}
+forestplot(tabletext2, txt_gp = fpTxtGp(ticks = gpar( cex = 1),xlab  = gpar(cex = 1.5)),
+           cochrane_from_rmeta2$mean,
+           cochrane_from_rmeta2$lower,
+           cochrane_from_rmeta2$upper,
+             new_page = TRUE,
+           is.summary=c(TRUE, TRUE, rep(FALSE,10),TRUE),
+           clip=c(0.1,2.5), xlog=TRUE, xticks=c(0.9,1.00,1.5, 2.5 ),
+           col=fpColors(box="royalblue",line="darkblue", summary="royalblue"))
+```
+
+```{r}
+forestplot(tabletext2, 
+           cochrane_from_rmeta2,new_page = TRUE,
+           is.summary = FALSE,
+           clip = c(0.1,1.5), 
+           xlog = TRUE, 
+           col = fpColors(box = "royalblue",   line = "darkblue", summary = "royalblue"))
+```
+
+```{r}
+
+#Model5
+# Cochrane data from the 'rmeta'-package
+cochrane_from_rmeta5 <- 
+  structure(list(
+    mean  = c(NA, NA,  0.74, 0.98, NA, 0.77, 0.96, NA, 0.73,  0.93,NA, NA,  0.89), 
+    lower = c(NA, NA,  0.58, 0.82, NA, 0.59, 0.80, NA, 0.54,  0.79,NA, NA,  0.77),
+    upper = c(NA, NA,  0.95, 1.18, NA, 0.99, 1.15, NA, 1.00,  1.09,NA, NA,  1.02)),
+    .Names = c("mean", "lower", "upper"), 
+    row.names = c(NA, -11L), 
+    class = "data.frame")
+
+tabletext5 <- cbind(
+  c("", "Full models", "Men","Women", "","Higher income",  "Lower income", "","Higher education",  "Lower education ",NA, NA, "Summary"),
+  c("Deaths", "Higher Opt.", "204","337","","239","303","", "166",  "375",NA, NA, "345"),
+  c("Deaths", "Lower Opt.", "129", "216","", "115","230", "", "64", "281",NA, NA, "541"),
+  c("", "HR", "0.74", "0.98", "","0.77", "0.96","", "0.73", "0.93",NA, NA, "0.89"),
+  c("", "P-interaction", "", "", "0.06","", "","0.05", "", "","0.01", NA, ""))
+```
+
+txt_gp = fpTxtGp(ticks = gpar( cex = 1),xlab  = gpar(cex = 1.5)),
+
+
+
+```{r}
+
+forestplot(tabletext3, txt_gp = fpTxtGp(ticks = gpar( cex = 1),xlab  = gpar(cex = 1.5)),
+           cochrane_from_rmeta3,new_page = TRUE,
+           is.summary = c(TRUE,TRUE,rep(FALSE,9),TRUE, TRUE),
+           clip = c(0.1,1.5), 
+           xlog = TRUE, xticks=c(0.50,0.85,1.00, 1.5 ),
+           col = fpColors(box = "royalblue",   line = "darkblue", summary = "royalblue"))
+```
+
+
+```{r}
+
+forestplot(tabletext5, txt_gp = fpTxtGp(ticks = gpar( cex = 1),xlab  = gpar(cex = 1.5)),
+           cochrane_from_rmeta5,new_page = TRUE,
+           is.summary = c(TRUE,TRUE,rep(FALSE,9),TRUE, TRUE),
+           clip = c(0.1,1.5), 
+           xlog = TRUE, 
+           col = fpColors(box = "royalblue",   line = "darkblue", summary = "royalblue"))
+```
+
+
+
+```{r}
+data(HRQoL)
+clrs <- fpColors(box = "royalblue",line = "darkblue", summary = "royalblue")
+tabletext <- 
+  list(c(NA, rownames(HRQoL$Sweden)),
+       append(list(expression(beta)), sprintf("%.2f", HRQoL$Sweden[,"coef"])))
+forestplot(tabletext, boxsize = 0.2,
+           rbind(rep(NA, 3), 
+                 HRQoL$Sweden),
+           col = clrs,
+           xlab = "EQ-5D index")
+```
+
+
+```{r}
+forestplot(tabletext, 
+           rbind(HRQoL$Sweden),
+           clip = c(-.1, Inf),
+           col = clrs,
+           xlab = "EQ-5D index")
+```
+
+
