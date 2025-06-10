@@ -213,4 +213,60 @@ run;
 
 
 
+/***************************************************************************************************/
+/*Method 4-1: Standardized mortality ratio weighting (SMRW)*/
 
+data Final_dataset_ps_smrw;
+	set sas.Sample_ps;
+	if EXPOSE=1 then smrw=1; else if EXPOSE=0 then smrw=denom/(1-denom);
+run;
+
+
+proc means data = Final_dataset_ps_smrw min p5 median mean p95 std max;
+	var smrw;
+run;
+
+
+*** Truncate weights at the 1th and 99th percentile ***;
+*Extract 5th and 95th percentile of SMR weights;
+proc univariate data = Final_dataset_ps_smrw noprint;
+	var smrw;
+	output out=pctl pctlpts=1 99 pctlpre=p;
+run;
+
+* Save 5th, 95th percentile cutoff;
+data temp3;
+	set pctl;
+	call symput ('cutoff_smrw_99', p99);
+	call symput ('cutoff_smrw_1', p1);
+run;
+
+
+*Truncate weights at the 1th and 99th percentile;
+data Final_dataset_ps_smrw_1_99;
+	set Final_dataset_ps_smrw;
+	smrw_p1_99 = smrw;
+	if smrw_p1_99 > %sysevalf(&cutoff_smrw_99) then do;
+		smrw_p1_99 = %sysevalf(&cutoff_smrw_99);
+	end;
+	else if smrw_p1_99 < %sysevalf(&cutoff_smrw_1) then do;
+		smrw_p1_99 = %sysevalf(&cutoff_smrw_1);
+	end;
+run;
+
+
+proc means data = Final_dataset_ps_smrw_1_99 min p5 median mean p95 std max;
+	var smrw_p1_99;
+run;
+
+
+*** Fit logistic regression model with truncated weights ***;	
+proc logistic data = Final_dataset_ps_smrw_1_99;
+   	class EXPOSE(ref="0") MACE_OUTCOME(ref="0");
+   	model MACE_OUTCOME = EXPOSE;
+	weight smrw_p1_99;
+run;
+/*Standardized mortality ratio weighting: OR 0.830(0.720-0.958)*/
+
+
+ 
